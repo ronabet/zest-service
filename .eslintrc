@@ -1,0 +1,51 @@
+{
+  "plugins": ["simple-import-sort"],
+  "rules": {
+    "@typescript-eslint/return-await": 0,
+    "import/no-unresolved": 0,
+    "global-require": 0,
+    "prefer-destructuring": 0,
+    "no-plusplus": 0,
+    "no-await-in-loop": 0,
+    "radix": 0,
+    "max-classes-per-file": 0,
+    "padded-blocks": "off",
+    "no-async-promise-executor": "off",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
+        }
+      }
+    ]
+  },
+  "overrides": [
+    // override "simple-import-sort" config
+    {
+      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
+      "rules": {
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              // Packages `nest` related packages come first.
+              ["^@nestjs", "^@?\\w"],
+              // Internal packages.
+              ["^(@|lusha)(/.*|$)"],
+              // Side effect imports.
+              ["^\\u0000"],
+              // Parent imports. Put `..` last.
+              ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
+              // Other relative imports. Put same-folder imports and `.` last.
+              ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"]
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
