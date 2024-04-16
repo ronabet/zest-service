@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { SortOrder } from '../common/interfaces/utils';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ReposService {
@@ -9,7 +10,8 @@ export class ReposService {
 
   constructor(
     private httpService: HttpService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private configService: ConfigService
   ) {}
 
   async getTopRepos(page: number = 1) {
@@ -17,7 +19,7 @@ export class ReposService {
       // Attempt to fetch the entire current cache for repositories
       let allRepos = await this.cacheManager.get<{[id: string]: any}>(this.cacheKey) || {};
 
-      const response = await this.fetchFromGitHub(this.buildGitHubApiUrl(page, SortOrder.Desc));
+      const response = await this.fetchFromGitSource(this.buildApiUrl(page, SortOrder.Desc));
       const newRepos = this.processRepositories(response.data.items);
 
       allRepos = { ...allRepos, ...newRepos };
@@ -40,11 +42,11 @@ export class ReposService {
     return allRepos;
   }
 
-  private buildGitHubApiUrl(page: number, order: SortOrder): string {
-    return `https://api.github.com/search/repositories?q=stars:>1&sort=stars&order=${order}&page=${page}`;
+  private buildApiUrl(page: number, order: SortOrder): string {
+    return `${this.configService.get('GIT_SOURCE_URL')}:>1&sort=stars&order=${order}&page=${page}`;
   }
 
-  private async fetchFromGitHub(url: string) {
+  private async fetchFromGitSource(url: string) {
     return await this.httpService.axiosRef.get(url);
   }
 

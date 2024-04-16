@@ -1,14 +1,20 @@
-# use the nodejs builder image
-FROM    harbor.lusha.co/lusha/nodejs-builder:18 as builder
-# install dev dependencies also
-RUN     npm i
-RUN     npm run build
+# Base image
+FROM node:18
 
-# use the backend base to add to artifacts
-FROM    harbor.lusha.co/lusha/nodejs-backend-base:18
-COPY    --from=builder --chown=node:node /usr/src/app .
+# Create app directory
+WORKDIR /usr/src/app
 
-# the app has non default port 3030
-ENV     PORT=3030
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+COPY package*.json ./
 
-CMD     npm run start:$APP_ENV
+# Install app dependencies
+RUN npm install
+
+# Bundle app source
+COPY . .
+
+# Creates a "dist" folder with the production build
+RUN npm run build
+
+# Start the server
+CMD [ "npm", "start" ]
