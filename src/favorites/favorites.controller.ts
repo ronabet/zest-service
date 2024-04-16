@@ -21,18 +21,17 @@ export class FavoritesController {
 
   @Post('add')
   async addFavorite(@Body() favoriteData: CreateFavoriteDto): Promise<Repository> {
-    // Assuming Favorite class is correctly defined elsewhere with appropriate constructor
     const favorite = new Favorite(favoriteData.userId, favoriteData.repoId);
     return this.favoritesService.addFavorite(favoriteData.userId, favorite);
   }
 
-  @Delete(':userId/:id')
-  removeFavorite(@Param('userId') userId: number, @Param('id') id: number) {
-    const result = this.favoritesService.removeFavorite(userId, id);
+  @Delete()
+  async removeFavorite(@Query('userId') userId: number, @Query('repoId') repoId: number) {
+    const result = await this.favoritesService.removeFavorite(userId, repoId);
     if (!result) {
-      throw new HttpException('Favorite repo not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(`RepoId: ${repoId} not found`, HttpStatus.NOT_FOUND);
     }
-    return { message: 'Favorite removed successfully' };
+    return { message: `RepoId: ${repoId} removed successfully` };
   }
 }
 
