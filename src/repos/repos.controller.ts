@@ -7,7 +7,7 @@ export class ReposController {
   constructor(private reposService: ReposService) {}
 
   @Get('top')
-  @ApiResponse({ status: 200, description: 'Retrieve top ranked github repos' })
+  @ApiResponse({ status: 200, description: 'Get top ranked github repos by page (default is 1)' })
   getTopRepos(@Query('page') page: number) {
     return this.reposService.getTopRepos(page);
   }
